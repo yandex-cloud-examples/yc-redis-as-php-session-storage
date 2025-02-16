@@ -1,0 +1,3 @@
+# Using a Yandex Managed Service for Redis cluster as a PHP session storage
+
+You can use a [Managed Service for Redis](https://yandex.cloud/docs/managed-redis) cluster for storing PHP session data. See this [tutorial](https://yandex.cloud/docs/tutorials/dataplatform/redis-as-php-sessions-storage) to learn how to prepare the infrastructure for a VM and Managed Service for Redis using Terraform. See this repository for the configuration files you will need: [redis-cluster-non-sharded-and-vm-for-php.tf](redis-cluster-non-sharded-and-vm-for-php.tf) and [redis-cluster-sharded-and-vm-for-php.tf](redis-cluster-sharded-and-vm-for-php.tf).

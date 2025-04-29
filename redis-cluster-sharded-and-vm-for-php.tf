@@ -1,4 +1,4 @@
-# Infrastructure for the Yandex Cloud Managed Service for Redis sharded cluster and Virtual Machine
+# Infrastructure for the Yandex Managed Service for Valkey™ sharded cluster and Virtual Machine
 #
 # RU: https://cloud.yandex.ru/docs/managed-redis/tutorials/redis-as-php-sessions-storage
 # EN: https://cloud.yandex.com/en/docs/managed-redis/tutorials/redis-as-php-sessions-storage
@@ -9,15 +9,15 @@ locals {
   zone_a_v4_cidr_blocks = "10.1.0.0/16" # Set the CIDR block for subnet in the ru-central1-a availability zone.
   zone_b_v4_cidr_blocks = "10.2.0.0/16" # Set the CIDR block for subnet in the ru-central1-b availability zone.
   zone_c_v4_cidr_blocks = "10.3.0.0/16" # Set the CIDR block for subnet in the ru-central1-c availability zone.
-  password              = ""            # Set the password for the Managed Service for Redis cluster.
-  version               = "6.2"         # Set the version of the Redis.
+  password              = ""            # Set the password for the Yandex Managed Service for Valkey™ cluster.
+  version               = "6.2"         # Set the version of the Valkey™.
   image_id              = ""            # Set a public image ID from https://cloud.yandex.com/en/docs/compute/operations/images-with-pre-installed-software/get-list.
   vm_username           = ""            # Set the username to connect to the routing VM via SSH. For Ubuntu images `ubuntu` username is used by default.
   vm_ssh_key_path       = ""            # Set the path to the public SSH public key for the routing VM. Example: "~/.ssh/key.pub".
 }
 
 resource "yandex_vpc_network" "redis-and-vm-network" {
-  description = "Network for the Managed Service for Redis cluster and VM"
+  description = "Network for the Yandex Managed Service for Valkey™ cluster and VM"
   name        = "redis-and-vm-network"
 }
 
@@ -46,7 +46,7 @@ resource "yandex_vpc_subnet" "subnet-c" {
 }
 
 resource "yandex_vpc_default_security_group" "redis-and-vm-security-group" {
-  description = "Security group for the Managed Service for Redis cluster and VM"
+  description = "Security group for the Yandex Managed Service for Valkey™ cluster and VM"
   network_id  = yandex_vpc_network.redis-and-vm-network.id
 
   ingress {
@@ -87,7 +87,7 @@ resource "yandex_vpc_default_security_group" "redis-and-vm-security-group" {
 }
 
 resource "yandex_mdb_redis_cluster" "redis-cluster" {
-  description        = "Managed Service for Redis cluster"
+  description        = "Yandex Managed Service for Valkey™ cluster"
   name               = "redis-cluster"
   environment        = "PRODUCTION"
   network_id         = yandex_vpc_network.redis-and-vm-network.id
@@ -143,7 +143,7 @@ resource "yandex_compute_instance" "lamp-vm" {
 
   network_interface {
     subnet_id = yandex_vpc_subnet.subnet-a.id
-    nat       = true # Required for connection from the Internet
+    nat       = true # Required for connection from the internet
   }
 
   metadata = {

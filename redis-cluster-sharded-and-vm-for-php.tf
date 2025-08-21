@@ -8,9 +8,9 @@
 locals {
   zone_a_v4_cidr_blocks = "10.1.0.0/16" # Set the CIDR block for subnet in the ru-central1-a availability zone.
   zone_b_v4_cidr_blocks = "10.2.0.0/16" # Set the CIDR block for subnet in the ru-central1-b availability zone.
-  zone_c_v4_cidr_blocks = "10.3.0.0/16" # Set the CIDR block for subnet in the ru-central1-c availability zone.
+  zone_d_v4_cidr_blocks = "10.3.0.0/16" # Set the CIDR block for subnet in the ru-central1-d availability zone.
   password              = ""            # Set the password for the Managed Service for Redis cluster.
-  version               = "6.2"         # Set the version of the Redis.
+  version               = "7.2"         # Set the version of the Redis.
   image_id              = ""            # Set a public image ID from https://cloud.yandex.com/en/docs/compute/operations/images-with-pre-installed-software/get-list.
   vm_username           = ""            # Set the username to connect to the routing VM via SSH. For Ubuntu images `ubuntu` username is used by default.
   vm_ssh_key_path       = ""            # Set the path to the public SSH public key for the routing VM. Example: "~/.ssh/key.pub".
@@ -37,12 +37,12 @@ resource "yandex_vpc_subnet" "subnet-b" {
   v4_cidr_blocks = [local.zone_b_v4_cidr_blocks]
 }
 
-resource "yandex_vpc_subnet" "subnet-c" {
-  description    = "Subnet in the ru-central1-c availability zone"
-  name           = "subnet-c"
-  zone           = "ru-central1-c"
+resource "yandex_vpc_subnet" "subnet-d" {
+  description    = "Subnet in the ru-central1-d availability zone"
+  name           = "subnet-d"
+  zone           = "ru-central1-d"
   network_id     = yandex_vpc_network.redis-and-vm-network.id
-  v4_cidr_blocks = [local.zone_c_v4_cidr_blocks]
+  v4_cidr_blocks = [local.zone_d_v4_cidr_blocks]
 }
 
 resource "yandex_vpc_default_security_group" "redis-and-vm-security-group" {
@@ -118,8 +118,8 @@ resource "yandex_mdb_redis_cluster" "redis-cluster" {
   }
 
   host {
-    zone       = "ru-central1-c"
-    subnet_id  = yandex_vpc_subnet.subnet-c.id
+    zone       = "ru-central1-d"
+    subnet_id  = yandex_vpc_subnet.subnet-d.id
     shard_name = "shard3"
   }
 }

@@ -1,4 +1,4 @@
-# Infrastructure for sharded Yandex Managed Service for Valkey™ cluster and Yandex Compute Cloud Virtual Machine
+# Infrastructure for sharded Yandex Managed Service for Valkey™ cluster and Virtual Machine in Yandex Compute Cloud
 #
 # RU: https://cloud.yandex.ru/docs/managed-valkey/tutorials/valkey-as-php-sessions-storage
 # EN: https://cloud.yandex.com/en/docs/managed-valkey/tutorials/valkey-as-php-sessions-storage
@@ -8,23 +8,23 @@
 locals {
   # The following settings are to be specified by the user. Change them as you wish.
   
-  # Settings for the Yandex Managed Service for Valkey cluster
-  password = "" # Set the password for the Yandex Managed Service for Valkey cluster
+  # Settings for the Managed Service for Valkey™ cluster
+  password = "" # Password for the Managed Service for Valkey™ cluster
 
-  # Settings for the Yandex Compute Cloud VM
-  image_id        = "" # Set the public image ID from https://cloud.yandex.com/en/docs/compute/operations/images-with-pre-installed-software/get-list
-  vm_username     = "" # Set the username to connect to the routing VM via SSH. For Ubuntu images `ubuntu` username is used by default.
-  vm_ssh_key_path = "" # Set the path to the public SSH public key for the routing VM. Example: "~/.ssh/key.pub".
+  # Settings for the VM in Compute Cloud
+  image_id        = "" # Public image ID for the VM. See: https://cloud.yandex.com/en/docs/compute/operations/images-with-pre-installed-software/get-list.
+  vm_username     = "" # Username to connect to the VM via SSH. For Ubuntu images `ubuntu` username is used by default.
+  vm_ssh_key_path = "" # Full path to the SSH public key for the VM. Example: "~/.ssh/key.pub".
 
   # The following settings are predefined. Change them only if necessary.
   
   # Settings for the Network infrastructure
-  zone_a_v4_cidr_blocks = "10.1.0.0/16" # Set the CIDR block for the subnet in the ru-central1-a availability zone
-  zone_b_v4_cidr_blocks = "10.2.0.0/16" # Set the CIDR block for the subnet in the ru-central1-b availability zone
-  zone_d_v4_cidr_blocks = "10.3.0.0/16" # Set the CIDR block for the subnet in the ru-central1-d availability zone
+  zone_a_v4_cidr_blocks = "10.1.0.0/16" # CIDR block for the subnet in the ru-central1-a availability zone
+  zone_b_v4_cidr_blocks = "10.2.0.0/16" # CIDR block for the subnet in the ru-central1-b availability zone
+  zone_d_v4_cidr_blocks = "10.3.0.0/16" # CIDR block for the subnet in the ru-central1-d availability zone
   
-  # Settings for the Yandex Managed Service for Valkey cluster
-  version = "7.2-valkey" # Set the version of the Yandex Managed Service for Valkey
+  # Settings for the Managed Service for Valkey™ cluster
+  version = "7.2-valkey" # Version of the Managed Service for Valkey™
 }
 
 resource "yandex_vpc_network" "redis-and-vm-network" {
@@ -99,18 +99,18 @@ resource "yandex_vpc_default_security_group" "redis-and-vm-security-group" {
 
 resource "yandex_mdb_redis_cluster_v2" "redis-cluster" {
   description        = "Managed Service for Valkey cluster"
-  name               = "redis-cluster"
+  name               = "valkey-cluster"
   environment        = "PRODUCTION"
   network_id         = yandex_vpc_network.redis-and-vm-network.id
   security_group_ids = [yandex_vpc_default_security_group.redis-and-vm-security-group.id]
   sharded            = true
 
-  config {
+  config = {
     password = local.password
     version  = local.version
   }
 
-  resources {
+  resources = {
     resource_preset_id = "hm2.nano"
     disk_type_id       = "network-ssd"
     disk_size          = 16 # GB
@@ -139,7 +139,7 @@ resource "yandex_mdb_redis_cluster_v2" "redis-cluster" {
 
 
 resource "yandex_compute_instance" "lamp-vm" {
-  description = "Compute Virtual Machine"
+  description = "Virtual Machine in Compute Cloud"
   name        = "lamp-vm"
   platform_id = "standard-v3" # Intel Ice Lake
 

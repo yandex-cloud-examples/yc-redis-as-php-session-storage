@@ -14,7 +14,7 @@ locals {
   # Settings for the Yandex Compute Cloud VM
   image_id        = "" # Set the public image ID from https://cloud.yandex.com/en/docs/compute/operations/images-with-pre-installed-software/get-list
   vm_username     = "" # Set the username to connect to the routing VM via SSH. For Ubuntu images `ubuntu` username is used by default.
-  vm_ssh_key_path = ""  # Set the path to the public SSH public key for the routing VM. Example: "~/.ssh/key.pub".
+  vm_ssh_key_path = "" # Set the path to the public SSH public key for the routing VM. Example: "~/.ssh/key.pub".
 
   # The following settings are predefined. Change them only if necessary.
   

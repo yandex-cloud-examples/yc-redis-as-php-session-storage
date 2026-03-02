@@ -12,9 +12,9 @@ locals {
   password = "" # Password for the Yandex Managed Service for Valkey™ cluster
 
   # Settings for the VM in Yandex Compute Cloud
-  image_id        = "" # Public image ID for the VM. See: https://cloud.yandex.com/en/docs/compute/operations/images-with-pre-installed-software/get-list.
-  vm_username     = "" # Username to connect to the VM via SSH. For Ubuntu images `ubuntu` username is used by default.
-  vm_ssh_key_path = "" # Full path to the SSH public key for the VM. Example: "~/.ssh/key.pub".
+  image_id        = "" # Public image ID for the VM in Yandex Compute Cloud. See: https://cloud.yandex.com/en/docs/compute/operations/images-with-pre-installed-software/get-list.
+  vm_username     = "" # Username to connect to the VM in Yandex Compute Cloud via SSH. For Ubuntu images `ubuntu` username is used by default.
+  vm_ssh_key_path = "" # Full path to the SSH public key for the VM in Yandex Compute Cloud. Example: "~/.ssh/key.pub".
 
   # The following settings are predefined. Change them only if necessary.
   
@@ -28,7 +28,7 @@ locals {
 }
 
 resource "yandex_vpc_network" "redis-and-vm-network" {
-  description = "Network for the Yandex Managed Service for Valkey cluster and VM"
+  description = "Network for the Yandex Managed Service for Valkey cluster and VM in Yandex Compute Cloud"
   name        = "redis-and-vm-network"
 }
 
@@ -57,7 +57,7 @@ resource "yandex_vpc_subnet" "subnet-d" {
 }
 
 resource "yandex_vpc_default_security_group" "redis-and-vm-security-group" {
-  description = "Security group for the Yandex Managed Service for Valkey cluster and VM"
+  description = "Security group for the Yandex Managed Service for Valkey cluster and VM in Yandex Compute Cloud"
   network_id  = yandex_vpc_network.redis-and-vm-network.id
 
   ingress {

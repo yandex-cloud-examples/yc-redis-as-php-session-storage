@@ -1,20 +1,32 @@
-# Infrastructure for Yandex Cloud Managed Service for Redis non sharded cluster and Virtual Machine
+# Infrastructure for non-sharded Yandex Managed Service for Valkey™ cluster and Virtual Machine in Yandex Compute Cloud
 #
-# RU: https://cloud.yandex.ru/docs/managed-redis/tutorials/redis-as-php-sessions-storage
-# EN: https://cloud.yandex.com/en/docs/managed-redis/tutorials/redis-as-php-sessions-storage
+# RU: https://cloud.yandex.ru/docs/managed-valkey/tutorials/valkey-as-php-sessions-storage
+# EN: https://cloud.yandex.com/en/docs/managed-valkey/tutorials/valkey-as-php-sessions-storage
 #
 # Set the following settings:
 
 locals {
-  zone_a_v4_cidr_blocks = "10.1.0.0/16" # Set the CIDR block for subnet in the ru-central1-a availability zone.
-  password              = ""            # Set the password for the Managed Service for Redis cluster.
-  version               = "6.2"         # Set the version of the Redis.
-  image_id              = ""            # Set a public image ID from https://cloud.yandex.com/en/docs/compute/operations/images-with-pre-installed-software/get-list.
-  vm_username           = ""            # Set the username to connect to the routing VM via SSH. For Ubuntu images `ubuntu` username is used by default.
-  vm_ssh_key_path       = ""            # Set the path to the public SSH public key for the routing VM. Example: "~/.ssh/key.pub".
+  # The following settings are to be specified by the user. Change them as you wish.
+  
+  # Settings for the Yandex Managed Service for Valkey™ cluster
+  password = "" # Password for the Yandex Managed Service for Valkey™ cluster
+
+  # Settings for the VM in Compute Cloud
+  image_id        = "" # Public image ID for the VM in Compute Cloud. See: https://cloud.yandex.com/en/docs/compute/operations/images-with-pre-installed-software/get-list.
+  vm_username     = "" # Username to connect to the VM in Compute Cloud via SSH. Ubuntu images use the `ubuntu` username by default.
+  vm_ssh_key_path = "" # Full path to the SSH public key for the VM in Compute Cloud. Example: "~/.ssh/key.pub".
+
+  # The following settings are predefined. Change them only if necessary.
+  
+  # Settings for the Network infrastructure
+  zone_a_v4_cidr_blocks = "10.1.0.0/16" # CIDR block for the subnet in the ru-central1-a availability zone
+  
+  # Settings for the Yandex Managed Service for Valkey™ cluster
+  version = "7.2-valkey" # Version of the Yandex Managed Service for Valkey™
 }
+
 resource "yandex_vpc_network" "redis-and-vm-network" {
-  description = "Network for the Managed Service for Redis cluster and VM"
+  description = "Network for the Yandex Managed Service for Valkey cluster and VM in Compute Cloud"
   name        = "redis-and-vm-network"
 }
 
@@ -27,7 +39,7 @@ resource "yandex_vpc_subnet" "subnet-a" {
 }
 
 resource "yandex_vpc_default_security_group" "redis-and-vm-security-group" {
-  description = "Security group for the Managed Service for Redis cluster and VM"
+  description = "Security group for the Yandex Managed Service for Valkey cluster and VM in Compute Cloud"
   network_id  = yandex_vpc_network.redis-and-vm-network.id
 
   ingress {
@@ -67,32 +79,34 @@ resource "yandex_vpc_default_security_group" "redis-and-vm-security-group" {
   }
 }
 
-resource "yandex_mdb_redis_cluster" "redis-cluster" {
-  description        = "Managed Service for Redis cluster"
-  name               = "redis-cluster"
+resource "yandex_mdb_redis_cluster_v2" "redis-cluster" {
+  description        = "Yandex Managed Service for Valkey cluster"
+  name               = "valkey-cluster"
   environment        = "PRODUCTION"
   network_id         = yandex_vpc_network.redis-and-vm-network.id
   security_group_ids = [yandex_vpc_default_security_group.redis-and-vm-security-group.id]
 
-  config {
+  config = {
     password = local.password
     version  = local.version
   }
 
-  resources {
+  resources = {
     resource_preset_id = "hm2.nano"
     disk_type_id       = "network-ssd"
     disk_size          = 16 # GB
   }
 
-  host {
-    zone      = "ru-central1-a"
-    subnet_id = yandex_vpc_subnet.subnet-a.id
+  hosts = {
+    host1 = {
+      zone      = "ru-central1-a"
+      subnet_id = yandex_vpc_subnet.subnet-a.id
+    }
   }
 }
 
 resource "yandex_compute_instance" "lamp-vm" {
-  description = "Compute Virtual Machine"
+  description = "Virtual Machine in Compute Cloud"
   name        = "lamp-vm"
   platform_id = "standard-v3" # Intel Ice Lake
 
